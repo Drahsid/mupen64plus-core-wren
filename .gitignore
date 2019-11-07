@@ -1,2 +1,8 @@
 /projects/unix/_obj*/
 /projects/unix/libmupen64plus*.so*
+projects/VisualStudio2013/Release
+projects/VisualStudio2013/Debug
+projects/VisualStudio2013/.vs
+projects/VisualStudio2013/mupen64plus-core.vcxproj.filters
+*.suo
+*.user

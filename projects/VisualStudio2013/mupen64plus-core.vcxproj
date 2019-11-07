@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="ARM64_New_Dynarec_Debug|Win32">
       <Configuration>ARM64_New_Dynarec_Debug</Configuration>
@@ -72,6 +72,7 @@
     <ClCompile Include="..\..\src\api\config.c" />
     <ClCompile Include="..\..\src\api\debugger.c" />
     <ClCompile Include="..\..\src\api\frontend.c" />
+    <ClCompile Include="..\..\src\api\memaccess.c" />
     <ClCompile Include="..\..\src\api\vidext.c" />
     <ClCompile Include="..\..\src\backends\api\video_capture_backend.c" />
     <ClCompile Include="..\..\src\backends\plugins_compat\input_plugin_compat.c" />
@@ -468,6 +469,7 @@
     <ClInclude Include="..\..\src\api\m64p_config.h" />
     <ClInclude Include="..\..\src\api\m64p_debugger.h" />
     <ClInclude Include="..\..\src\api\m64p_frontend.h" />
+    <ClInclude Include="..\..\src\api\m64p_memaccess.h" />
     <ClInclude Include="..\..\src\api\m64p_plugin.h" />
     <ClInclude Include="..\..\src\api\m64p_types.h" />
     <ClInclude Include="..\..\src\api\m64p_vidext.h" />
@@ -796,6 +798,8 @@
     <ClInclude Include="..\..\src\device\pif\cic.h" />
     <ClInclude Include="..\..\src\device\pif\n64_cic_nus_6105.h" />
     <ClInclude Include="..\..\src\device\pif\pif.h" />
+    <ClInclude Include="..\..\src\wren\dirent.h" />
+    <ClInclude Include="..\..\src\wren\wrenfuncs.h" />
     <ClInclude Include="..\..\subprojects\md5\md5.h" />
     <ClInclude Include="..\..\subprojects\minizip\crypt.h" />
     <ClInclude Include="..\..\subprojects\minizip\ioapi.h" />
@@ -948,91 +952,92 @@
     <ProjectGuid>{92D3FEB9-2129-41C5-8577-BCD7D961EF41}</ProjectGuid>
     <RootNamespace>mupen64pluscore</RootNamespace>
     <Keyword>Win32Proj</Keyword>
+    <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='New_Dynarec_Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <PlatformToolset>v120_xp</PlatformToolset>
+    <PlatformToolset>v141_xp</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='New_Dynarec_Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='New_Dynarec_Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ARM64_New_Dynarec_Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='x64_New_Dynarec_Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='x86_New_Dynarec_Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ARM_New_Dynarec_Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='New_Dynarec_Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ARM64_New_Dynarec_Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='x64_New_Dynarec_Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='x86_New_Dynarec_Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ARM_New_Dynarec_Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>v120</PlatformToolset>
+    <PlatformToolset>v141</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -1171,24 +1176,36 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <TargetName>mupen64plus</TargetName>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);D:\VsProjs\wren\src\include</IncludePath>
+    <LibraryPath>D:\VsProjs\wren\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <TargetName>mupen64plus</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='New_Dynarec_Debug|Win32'">
     <TargetName>mupen64plus</TargetName>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);D:\VsProjs\wren\src\include</IncludePath>
+    <LibraryPath>D:\VsProjs\wren\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ARM64_New_Dynarec_Debug|Win32'">
     <TargetName>mupen64plus</TargetName>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);D:\VsProjs\wren\src\include</IncludePath>
+    <LibraryPath>D:\VsProjs\wren\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='x64_New_Dynarec_Debug|Win32'">
     <TargetName>mupen64plus</TargetName>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);D:\VsProjs\wren\src\include</IncludePath>
+    <LibraryPath>D:\VsProjs\wren\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='x86_New_Dynarec_Debug|Win32'">
     <TargetName>mupen64plus</TargetName>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);D:\VsProjs\wren\src\include</IncludePath>
+    <LibraryPath>D:\VsProjs\wren\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='ARM_New_Dynarec_Debug|Win32'">
     <TargetName>mupen64plus</TargetName>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);D:\VsProjs\wren\src\include</IncludePath>
+    <LibraryPath>D:\VsProjs\wren\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='New_Dynarec_Debug|x64'">
     <TargetName>mupen64plus</TargetName>
@@ -1213,12 +1230,16 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <TargetName>mupen64plus</TargetName>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);D:\VsProjs\wren\src\include</IncludePath>
+    <LibraryPath>D:\VsProjs\wren\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <TargetName>mupen64plus</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='New_Dynarec_Release|Win32'">
     <TargetName>mupen64plus</TargetName>
+    <IncludePath>$(VC_IncludePath);$(WindowsSdk_71A_IncludePath);D:\VsProjs\wren\src\include</IncludePath>
+    <LibraryPath>D:\VsProjs\wren\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='New_Dynarec_Release|x64'">
     <TargetName>mupen64plus</TargetName>
@@ -1240,7 +1261,7 @@
       <CompileAs>Default</CompileAs>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>shell32.lib;opengl32.lib;glu32.lib;..\..\..\mupen64plus-win32-deps\SDL-1.2.15\lib\x86\SDL.lib;..\..\..\mupen64plus-win32-deps\zlib-1.2.8\lib\x86\zlib.lib;..\..\..\mupen64plus-win32-deps\libpng-1.6.18\lib\x86\libpng16.lib;..\..\..\mupen64plus-win32-deps\freetype-2.6\lib\x86\freetype26.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>shell32.lib;opengl32.lib;glu32.lib;..\..\..\mupen64plus-win32-deps\SDL-1.2.15\lib\x86\SDL.lib;..\..\..\mupen64plus-win32-deps\zlib-1.2.8\lib\x86\zlib.lib;..\..\..\mupen64plus-win32-deps\libpng-1.6.18\lib\x86\libpng16.lib;..\..\..\mupen64plus-win32-deps\freetype-2.6\lib\x86\freetype26.lib;D:\VsProjs\wren\lib\wren_s.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)mupen64plus.dll</OutputFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
@@ -1293,7 +1314,7 @@
       </DisableSpecificWarnings>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>shell32.lib;opengl32.lib;glu32.lib;..\..\..\mupen64plus-win32-deps\SDL-1.2.15\lib\x86\SDL.lib;..\..\..\mupen64plus-win32-deps\zlib-1.2.8\lib\x86\zlib.lib;..\..\..\mupen64plus-win32-deps\libpng-1.6.18\lib\x86\libpng16.lib;..\..\..\mupen64plus-win32-deps\freetype-2.6\lib\x86\freetype26.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>shell32.lib;opengl32.lib;glu32.lib;..\..\..\mupen64plus-win32-deps\SDL-1.2.15\lib\x86\SDL.lib;..\..\..\mupen64plus-win32-deps\zlib-1.2.8\lib\x86\zlib.lib;..\..\..\mupen64plus-win32-deps\libpng-1.6.18\lib\x86\libpng16.lib;..\..\..\mupen64plus-win32-deps\freetype-2.6\lib\x86\freetype26.lib;D:\VsProjs\wren\lib\wren_s.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)mupen64plus.dll</OutputFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
@@ -1322,7 +1343,7 @@
       </DisableSpecificWarnings>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>shell32.lib;opengl32.lib;glu32.lib;..\..\..\mupen64plus-win32-deps\SDL-1.2.15\lib\x86\SDL.lib;..\..\..\mupen64plus-win32-deps\zlib-1.2.8\lib\x86\zlib.lib;..\..\..\mupen64plus-win32-deps\libpng-1.6.18\lib\x86\libpng16.lib;..\..\..\mupen64plus-win32-deps\freetype-2.6\lib\x86\freetype26.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>shell32.lib;opengl32.lib;glu32.lib;..\..\..\mupen64plus-win32-deps\SDL-1.2.15\lib\x86\SDL.lib;..\..\..\mupen64plus-win32-deps\zlib-1.2.8\lib\x86\zlib.lib;..\..\..\mupen64plus-win32-deps\libpng-1.6.18\lib\x86\libpng16.lib;..\..\..\mupen64plus-win32-deps\freetype-2.6\lib\x86\freetype26.lib;D:\VsProjs\wren\lib\wren_s.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)mupen64plus.dll</OutputFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
@@ -1351,7 +1372,7 @@
       </DisableSpecificWarnings>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>shell32.lib;opengl32.lib;glu32.lib;..\..\..\mupen64plus-win32-deps\SDL-1.2.15\lib\x86\SDL.lib;..\..\..\mupen64plus-win32-deps\zlib-1.2.8\lib\x86\zlib.lib;..\..\..\mupen64plus-win32-deps\libpng-1.6.18\lib\x86\libpng16.lib;..\..\..\mupen64plus-win32-deps\freetype-2.6\lib\x86\freetype26.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>shell32.lib;opengl32.lib;glu32.lib;..\..\..\mupen64plus-win32-deps\SDL-1.2.15\lib\x86\SDL.lib;..\..\..\mupen64plus-win32-deps\zlib-1.2.8\lib\x86\zlib.lib;..\..\..\mupen64plus-win32-deps\libpng-1.6.18\lib\x86\libpng16.lib;..\..\..\mupen64plus-win32-deps\freetype-2.6\lib\x86\freetype26.lib;D:\VsProjs\wren\lib\wren_s.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)mupen64plus.dll</OutputFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
@@ -1380,7 +1401,7 @@
       </DisableSpecificWarnings>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>shell32.lib;opengl32.lib;glu32.lib;..\..\..\mupen64plus-win32-deps\SDL-1.2.15\lib\x86\SDL.lib;..\..\..\mupen64plus-win32-deps\zlib-1.2.8\lib\x86\zlib.lib;..\..\..\mupen64plus-win32-deps\libpng-1.6.18\lib\x86\libpng16.lib;..\..\..\mupen64plus-win32-deps\freetype-2.6\lib\x86\freetype26.lib;..\..\..\mupen64plus-win32-deps\capstone\lib\x86\capstone_dll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>shell32.lib;opengl32.lib;glu32.lib;..\..\..\mupen64plus-win32-deps\SDL-1.2.15\lib\x86\SDL.lib;..\..\..\mupen64plus-win32-deps\zlib-1.2.8\lib\x86\zlib.lib;..\..\..\mupen64plus-win32-deps\libpng-1.6.18\lib\x86\libpng16.lib;..\..\..\mupen64plus-win32-deps\freetype-2.6\lib\x86\freetype26.lib;D:\VsProjs\wren\lib\wren_s.lib;..\..\..\mupen64plus-win32-deps\capstone\lib\x86\capstone_dll.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)mupen64plus.dll</OutputFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
@@ -1409,7 +1430,7 @@
       </DisableSpecificWarnings>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>shell32.lib;opengl32.lib;glu32.lib;..\..\..\mupen64plus-win32-deps\SDL-1.2.15\lib\x86\SDL.lib;..\..\..\mupen64plus-win32-deps\zlib-1.2.8\lib\x86\zlib.lib;..\..\..\mupen64plus-win32-deps\libpng-1.6.18\lib\x86\libpng16.lib;..\..\..\mupen64plus-win32-deps\freetype-2.6\lib\x86\freetype26.lib;..\..\..\mupen64plus-win32-deps\capstone\lib\x86\capstone_dll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>shell32.lib;opengl32.lib;glu32.lib;..\..\..\mupen64plus-win32-deps\SDL-1.2.15\lib\x86\SDL.lib;..\..\..\mupen64plus-win32-deps\zlib-1.2.8\lib\x86\zlib.lib;..\..\..\mupen64plus-win32-deps\libpng-1.6.18\lib\x86\libpng16.lib;..\..\..\mupen64plus-win32-deps\freetype-2.6\lib\x86\freetype26.lib;D:\VsProjs\wren\lib\wren_s.lib;..\..\..\mupen64plus-win32-deps\capstone\lib\x86\capstone_dll.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)mupen64plus.dll</OutputFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
@@ -1566,9 +1587,10 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <CompileAs>Default</CompileAs>
+      <Optimization>Disabled</Optimization>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>shell32.lib;opengl32.lib;glu32.lib;..\..\..\mupen64plus-win32-deps\SDL-1.2.15\lib\x86\SDL.lib;..\..\..\mupen64plus-win32-deps\zlib-1.2.8\lib\x86\zlib.lib;..\..\..\mupen64plus-win32-deps\libpng-1.6.18\lib\x86\libpng16.lib;..\..\..\mupen64plus-win32-deps\freetype-2.6\lib\x86\freetype26.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>shell32.lib;opengl32.lib;glu32.lib;..\..\..\mupen64plus-win32-deps\SDL-1.2.15\lib\x86\SDL.lib;..\..\..\mupen64plus-win32-deps\zlib-1.2.8\lib\x86\zlib.lib;..\..\..\mupen64plus-win32-deps\libpng-1.6.18\lib\x86\libpng16.lib;..\..\..\mupen64plus-win32-deps\freetype-2.6\lib\x86\freetype26.lib;D:\VsProjs\wren\lib\wren_s.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)mupen64plus.dll</OutputFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
@@ -1613,9 +1635,10 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <CompileAs>Default</CompileAs>
+      <Optimization>Disabled</Optimization>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>shell32.lib;opengl32.lib;glu32.lib;..\..\..\mupen64plus-win32-deps\SDL-1.2.15\lib\x86\SDL.lib;..\..\..\mupen64plus-win32-deps\zlib-1.2.8\lib\x86\zlib.lib;..\..\..\mupen64plus-win32-deps\libpng-1.6.18\lib\x86\libpng16.lib;..\..\..\mupen64plus-win32-deps\freetype-2.6\lib\x86\freetype26.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>shell32.lib;opengl32.lib;glu32.lib;..\..\..\mupen64plus-win32-deps\SDL-1.2.15\lib\x86\SDL.lib;..\..\..\mupen64plus-win32-deps\zlib-1.2.8\lib\x86\zlib.lib;..\..\..\mupen64plus-win32-deps\libpng-1.6.18\lib\x86\libpng16.lib;..\..\..\mupen64plus-win32-deps\freetype-2.6\lib\x86\freetype26.lib;D:\VsProjs\wren\lib\wren_s.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)mupen64plus.dll</OutputFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>

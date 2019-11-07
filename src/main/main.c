@@ -85,8 +85,16 @@
 #include "lirc.h"
 #endif //WITH_LIRC
 
+#include "wren/wrenfuncs.h"
+
+WrenVM* wvm;
+WrenConfiguration wconfig;
+WrenHandle* wrenMupenClass;
+WrenHandle* onTickHandle;
+
 /* version number for Core config section */
 #define CONFIG_PARAM_VERSION 1.01
+
 
 /** globals **/
 m64p_handle g_CoreConfig = NULL;
@@ -772,6 +780,11 @@ void new_frame(void)
     /* advance the current frame */
     l_CurrentFrame++;
 
+	wrenSetSlotHandle(wvm, 0, wrenMupenClass);
+	wrenSetSlotDouble(wvm, 1, l_CurrentFrame);
+	wrenCall(wvm, onTickHandle);
+
+
     if (l_FrameAdvance) {
         g_rom_pause = 1;
         l_FrameAdvance = 0;
@@ -1269,6 +1282,16 @@ void main_change_gb_cart(int control_id)
 
 m64p_error main_run(void)
 {
+	wrenInitConfiguration(&wconfig);
+	initWrenConfig(&wconfig);
+	wvm = wrenNewVM(&wconfig);
+	loadGameScripts(wvm);
+	wrenEnsureSlots(wvm, 1);
+	wrenGetVariable(wvm, "emulator", "mupen", 0);
+	wrenMupenClass = wrenGetSlotHandle(wvm, 0);
+	onTickHandle = wrenMakeCallHandle(wvm, "onTick(_)");
+	
+
     size_t i, k;
     size_t rdram_size;
     unsigned int count_per_op;
@@ -1692,6 +1715,8 @@ void main_stop(void)
         g_rom_pause = 0;
         StateChanged(M64CORE_EMU_STATE, M64EMU_RUNNING);
     }
+
+	wrenFreeVM(wvm);
 
     stop_device(&g_dev);
 
