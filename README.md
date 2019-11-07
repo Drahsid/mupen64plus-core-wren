@@ -4,6 +4,11 @@ You can find the official Mupen64Plus-Core repository [here](https://github.com/
 This fork intends to embed the scripting language, [wren](https://github.com/wren-lang/wren) into Mupen64. This fork is purely experimental.
 Note if you want to build this, you additionaly require wren's libraries and includes.
 
+## How to get started
+The directory for scripts is in the directory ./scripts. This is relative to the current directory in which you launched Mupen64Plus. In this directory, you should place scripts in subdirectories which have the same goodname as the rom that said scripts were created for. When you run a rom, this directory will be created for that rom if it does not already exist.
+
+In the ./scripts directory of this repository are sample scripts that I wrote.
+
 # Mupen64Plus-Core README
 
 More documentation can be found on the [Mupen64Plus website](https://mupen64plus.org/docs/)
