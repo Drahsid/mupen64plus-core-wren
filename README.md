@@ -1,8 +1,10 @@
-# Mupen64Plus-Core README
+# Mupen64Plus-Core-Wren README
 
-[![TravisCI Build Status](https://travis-ci.org/mupen64plus/mupen64plus-core.svg?branch=master)](https://travis-ci.org/mupen64plus/mupen64plus-core) 
-[![Coverity Scan Build Status](https://scan.coverity.com/projects/4381/badge.svg)](https://scan.coverity.com/projects/mupen64plus-core)
-[![AppVeyor Build status](https://ci.appveyor.com/api/projects/status/a1ua5t87n2w8a7fc?svg=true)](https://ci.appveyor.com/project/Narann/mupen64plus-core)
+You can find the official Mupen64Plus-Core repository [here](https://github.com/mupen64plus/mupen64plus-core)
+This fork intends to embed the scripting language, [wren](https://github.com/wren-lang/wren) into Mupen64. This fork is purely experimental.
+Note if you want to build this, you additionaly require wren's libraries and includes.
+
+# Mupen64Plus-Core README
 
 More documentation can be found on the [Mupen64Plus website](https://mupen64plus.org/docs/)
 and you can find a more complete README file on the [wiki](https://mupen64plus.org/wiki/index.php/README).
