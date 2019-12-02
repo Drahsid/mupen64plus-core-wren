@@ -32,9 +32,15 @@ void rdramReadf32(WrenVM* vm) {
 }
 
 void rdramReadBuffer(WrenVM* vm) {
-	int length = wrenGetSlotDouble(vm, 2);
+	uint32_t addr = wrenGetSlotDouble(vm, 1);
+	size_t length = wrenGetSlotDouble(vm, 2);
+	
 	wrenSetSlotNewList(vm, 0);
-	wrenSetSlotBytes(vm, 0, read_rdram_buffer(wrenGetSlotDouble(vm, 1), length), length);
+
+	for (int i = 0; i < length; i++) {
+		wrenSetSlotDouble(vm, 3, read_rdram_8(addr + i));
+		wrenInsertInList(vm, 0, i, 3);
+	}
 }
 
 void rdramWrite8(WrenVM* vm) {
@@ -83,9 +89,22 @@ void romRead32(WrenVM* vm) {
 	wrenSetSlotDouble(vm, 0, result);
 }
 
-void romReadBuffer(WrenVM* vm) {
-	uint32_t result = read_rom_buffer(wrenGetSlotDouble(vm, 1), wrenGetSlotDouble(vm, 2));
+void romReadf32(WrenVM* vm) {
+	uint32_t value = read_rom_32(wrenGetSlotDouble(vm, 1));
+	float result = *(float*)&value;
 	wrenSetSlotDouble(vm, 0, result);
+}
+
+void romReadBuffer(WrenVM* vm) {
+	uint32_t addr = wrenGetSlotDouble(vm, 1);
+	size_t length = wrenGetSlotDouble(vm, 2);
+
+	wrenSetSlotNewList(vm, 0);
+
+	for (int i = 0; i < length; i++) {
+		wrenSetSlotDouble(vm, 3, read_rom_8(addr + i));
+		wrenInsertInList(vm, 0, i, 3);
+	}
 }
 
 void romWrite8(WrenVM* vm) {
@@ -100,8 +119,24 @@ void romWrite32(WrenVM* vm) {
 	write_rom_32(wrenGetSlotDouble(vm, 1), wrenGetSlotDouble(vm, 2));
 }
 
+void romWritef32(WrenVM* vm) {
+	uint32_t addr = wrenGetSlotDouble(vm, 1);
+	float value = wrenGetSlotDouble(vm, 2);
+
+	write_rom_32(addr, *(uint32_t*)&value);
+}
+
+void romWriteBuffer(WrenVM* vm) {
+	int length = wrenGetListCount(vm, 2);
+	for (int i = 0; i < length; i++) {
+		wrenGetListElement(vm, 2, i, 3);
+		uint8_t buf = wrenGetSlotDouble(vm, 3);
+		write_rom_8(wrenGetSlotDouble(vm, 1), buf);
+	}
+}
+
 void osdMessage(WrenVM* vm) {
-	osd_new_message(OSD_TOP_LEFT, wrenGetSlotString(vm, 1));
+	osd_new_message(wrenGetSlotDouble(vm, 2), wrenGetSlotString(vm, 1));
 }
 
 void getMouseX(WrenVM* vm) {
@@ -246,6 +281,8 @@ WrenForeignMethodFn wBindForeignMethod(WrenVM* vm, const char* module, const cha
 		return romRead16;
 	else if (strcmp("emulator", module) == 0 && strcmp("mupen", className) == 0 && strcmp("romRead32(_)", signature) == 0)
 		return romRead32;
+	else if (strcmp("emulator", module) == 0 && strcmp("mupen", className) == 0 && strcmp("romReadf32(_)", signature) == 0)
+		return romReadf32;
 	else if (strcmp("emulator", module) == 0 && strcmp("mupen", className) == 0 && strcmp("romReadBuffer(_,_)", signature) == 0)
 		return romReadBuffer;
 	else if (strcmp("emulator", module) == 0 && strcmp("mupen", className) == 0 && strcmp("romWrite8(_,_)", signature) == 0)
@@ -254,11 +291,15 @@ WrenForeignMethodFn wBindForeignMethod(WrenVM* vm, const char* module, const cha
 		return romWrite16;
 	else if (strcmp("emulator", module) == 0 && strcmp("mupen", className) == 0 && strcmp("romWrite32(_,_)", signature) == 0)
 		return romWrite32;
+	else if (strcmp("emulator", module) == 0 && strcmp("mupen", className) == 0 && strcmp("romfWrite32(_,_)", signature) == 0)
+		return romWritef32;
+	else if (strcmp("emulator", module) == 0 && strcmp("mupen", className) == 0 && strcmp("romWriteBuffer(_,_)", signature) == 0)
+		return romWriteBuffer;
 	else if (strcmp("emulator", module) == 0 && strcmp("mupen", className) == 0 && strcmp("getMouseX()", signature) == 0)
 		return getMouseX;
 	else if (strcmp("emulator", module) == 0 && strcmp("mupen", className) == 0 && strcmp("getMouseY()", signature) == 0)
 		return getMouseY;
-	else if (strcmp("emulator", module) == 0 && strcmp("mupen", className) == 0 && strcmp("osdMessage(_)", signature) == 0)
+	else if (strcmp("emulator", module) == 0 && strcmp("mupen", className) == 0 && strcmp("osdMessage(_,_)", signature) == 0)
 		return osdMessage;
 
 	return 0;

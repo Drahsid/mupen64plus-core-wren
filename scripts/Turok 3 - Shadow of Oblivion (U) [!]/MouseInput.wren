@@ -53,14 +53,16 @@ class mupen {
     foreign static romWrite16(addr, input)
     foreign static romRead32(addr)
     foreign static romWrite32(addr, input)
+    foreign static romReadf32(addr)
+    foreign static romWritef32(addr, input)
     foreign static romReadBuffer(addr, length)
+    foreign static romWriteBuffer(addr, length)
 
     // Impleneted these just for this
     foreign static getMouseX()
     foreign static getMouseY()
 
-    // Currently broken; don't use
-    foreign static osdMessage(msg)
+    foreign static osdMessage(msg, corner)
 
     static init() {
         FPSSCALE = FPSSCALE * 60
@@ -80,7 +82,7 @@ class mupen {
         rdramWrite32(0x806CB01A, 0x504F)
         rdramWrite32(0x806CB01C, 0x504F)
         rdramWrite32(0x801659C6, 0xFFFF)
-        rdramWrite32(0x811659C4, 0xFFFF)
+        rdramWrite32(0x801659C4, 0xFFFF)
 
         if (framecount > TIMEBEFOREEXECUTE) {
             PITCH = PITCH - (getMouseY() * M_PITCH * M_MUL)
