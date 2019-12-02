@@ -85,13 +85,6 @@
 #include "lirc.h"
 #endif //WITH_LIRC
 
-#include "wren/wrenfuncs.h"
-
-WrenVM* wvm;
-WrenConfiguration wconfig;
-WrenHandle* wrenMupenClass;
-WrenHandle* onTickHandle;
-
 /* version number for Core config section */
 #define CONFIG_PARAM_VERSION 1.01
 
@@ -138,6 +131,17 @@ static size_t l_paks_idx[GAME_CONTROLLERS_COUNT];
 static void* l_paks[GAME_CONTROLLERS_COUNT][PAK_MAX_SIZE];
 static const struct pak_interface* l_ipaks[PAK_MAX_SIZE];
 static size_t l_pak_type_idx[6];
+
+int mouseX = 0;
+int mouseY = 0;
+
+#include "wren/wrenfuncs.h"
+
+WrenVM* wvm;
+WrenConfiguration wconfig;
+WrenHandle* wrenMupenClass;
+WrenHandle* initHandle;
+WrenHandle* onTickHandle;
 
 /*********************************************************************************************************
 * static functions
@@ -774,15 +778,20 @@ static void video_plugin_render_callback(int bScreenRedrawn)
 
 void new_frame(void)
 {
+	SDL_WM_GrabInput(SDL_GRAB_ON);
+	SDL_GetRelativeMouseState(&mouseX, &mouseY);
+
     if (g_FrameCallback != NULL)
         (*g_FrameCallback)(l_CurrentFrame);
 
     /* advance the current frame */
     l_CurrentFrame++;
 
-	wrenSetSlotHandle(wvm, 0, wrenMupenClass);
-	wrenSetSlotDouble(wvm, 1, l_CurrentFrame);
-	wrenCall(wvm, onTickHandle);
+	if (scriptsLoaded > 0) {
+		wrenSetSlotHandle(wvm, 0, wrenMupenClass);
+		wrenSetSlotDouble(wvm, 1, l_CurrentFrame);
+		wrenCall(wvm, onTickHandle);
+	}
 
 
     if (l_FrameAdvance) {
@@ -1286,11 +1295,16 @@ m64p_error main_run(void)
 	initWrenConfig(&wconfig);
 	wvm = wrenNewVM(&wconfig);
 	loadGameScripts(wvm);
-	wrenEnsureSlots(wvm, 1);
-	wrenGetVariable(wvm, "emulator", "mupen", 0);
-	wrenMupenClass = wrenGetSlotHandle(wvm, 0);
-	onTickHandle = wrenMakeCallHandle(wvm, "onTick(_)");
-	
+	if (scriptsLoaded > 0) {
+		wrenEnsureSlots(wvm, 2);
+		wrenGetVariable(wvm, "emulator", "mupen", 0);
+		wrenMupenClass = wrenGetSlotHandle(wvm, 0);
+		initHandle = wrenMakeCallHandle(wvm, "init()");
+		onTickHandle = wrenMakeCallHandle(wvm, "onTick(_)");
+
+		wrenSetSlotHandle(wvm, 0, wrenMupenClass);
+		wrenCall(wvm, initHandle);
+	}
 
     size_t i, k;
     size_t rdram_size;
@@ -1611,6 +1625,7 @@ m64p_error main_run(void)
 
     /* Startup message on the OSD */
     osd_new_message(OSD_MIDDLE_CENTER, "Mupen64Plus Started...");
+	printf("RDRAM Pointer: %p\n", (void*)g_dev.rdram.dram);
 
     g_EmulatorRunning = 1;
     StateChanged(M64CORE_EMU_STATE, M64EMU_RUNNING);

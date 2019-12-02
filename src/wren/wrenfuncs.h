@@ -6,6 +6,10 @@
 
 #define MAX_FILE_SIZE 134217728
 
+uint32_t scriptsLoaded = 0;
+
+static uint32_t ram_addr_align(uint32_t address) { return (address & 0xffffff) >> 2; }
+
 void rdramRead8(WrenVM* vm) {
 	uint8_t result = read_rdram_8(wrenGetSlotDouble(vm, 1));
 	wrenSetSlotDouble(vm, 0, result);
@@ -21,9 +25,16 @@ void rdramRead32(WrenVM* vm) {
 	wrenSetSlotDouble(vm, 0, result);
 }
 
-void rdramReadBuffer(WrenVM* vm) {
-	uint32_t result = read_rdram_buffer(wrenGetSlotDouble(vm, 1), wrenGetSlotDouble(vm, 2));
+void rdramReadf32(WrenVM* vm) {
+	uint32_t value = read_rdram_32(wrenGetSlotDouble(vm, 1));
+	float result = *(float*)&value;
 	wrenSetSlotDouble(vm, 0, result);
+}
+
+void rdramReadBuffer(WrenVM* vm) {
+	int length = wrenGetSlotDouble(vm, 2);
+	wrenSetSlotNewList(vm, 0);
+	wrenSetSlotBytes(vm, 0, read_rdram_buffer(wrenGetSlotDouble(vm, 1), length), length);
 }
 
 void rdramWrite8(WrenVM* vm) {
@@ -35,7 +46,26 @@ void rdramWrite16(WrenVM* vm) {
 }
 
 void rdramWrite32(WrenVM* vm) {
-	write_rdram_32(wrenGetSlotDouble(vm, 1), wrenGetSlotDouble(vm, 2));
+	uint32_t addr = wrenGetSlotDouble(vm, 1);
+	uint32_t value = wrenGetSlotDouble(vm, 2);
+
+	write_rdram_32(addr, value);
+}
+
+void rdramWritef32(WrenVM* vm) {
+	uint32_t addr = wrenGetSlotDouble(vm, 1);
+	float value = wrenGetSlotDouble(vm, 2);
+
+	write_rdram_32(addr, *(uint32_t*)&value);
+}
+
+void rdramWriteBuffer(WrenVM* vm) {
+	int length = wrenGetListCount(vm, 2);
+	for (int i = 0; i < length; i++) {
+		wrenGetListElement(vm, 2, i, 3);
+		uint8_t buf = wrenGetSlotDouble(vm, 3);
+		write_rdram_8(wrenGetSlotDouble(vm, 1), buf);
+	}
 }
 
 void romRead8(WrenVM* vm) {
@@ -68,6 +98,18 @@ void romWrite16(WrenVM* vm) {
 
 void romWrite32(WrenVM* vm) {
 	write_rom_32(wrenGetSlotDouble(vm, 1), wrenGetSlotDouble(vm, 2));
+}
+
+void osdMessage(WrenVM* vm) {
+	osd_new_message(OSD_TOP_LEFT, wrenGetSlotString(vm, 1));
+}
+
+void getMouseX(WrenVM* vm) {
+	wrenSetSlotDouble(vm, 0, mouseX);
+}
+
+void getMouseY(WrenVM* vm) {
+	wrenSetSlotDouble(vm, 0, mouseY);
 }
 
 void wPrint(WrenVM* vm, const char* str) {
@@ -121,10 +163,10 @@ int loadModule(const char* path, char* buffer) {
 	free(source);
 }
 
-char* wLoadModule(WrenVM* vm, const char* name) //Untested; got from elsewhere. Not sure what calls this, internal imports maybe?
+char* wImportModule(WrenVM* vm, const char* name)
 {
 	char* path = 0;
-	unsigned int pathLen = strlen("scripts/") + strlen(name) + strlen(".wren") + 1;
+	unsigned int pathLen = strlen("scripts/imports/") + strlen(name) + strlen(".wren") + 1;
 	unsigned int len = 0;
 	unsigned int size = MAX_FILE_SIZE;
 
@@ -135,9 +177,11 @@ char* wLoadModule(WrenVM* vm, const char* name) //Untested; got from elsewhere. 
 		return 0;
 	}
 
-	strcpy(path, "scripts/");
+	strcpy(path, "scripts/imports/");
 	strcat(path, name);
 	strcat(path, ".wren");
+
+	printf("Loading script at %s\n", path);
 
 	char* source = malloc(MAX_FILE_SIZE);
 	if (!source)
@@ -182,6 +226,8 @@ WrenForeignMethodFn wBindForeignMethod(WrenVM* vm, const char* module, const cha
 		return rdramRead16;
 	else if (strcmp("emulator", module) == 0 && strcmp("mupen", className) == 0 && strcmp("rdramRead32(_)", signature) == 0)
 		return rdramRead32;
+	else if (strcmp("emulator", module) == 0 && strcmp("mupen", className) == 0 && strcmp("rdramReadf32(_)", signature) == 0)
+		return rdramReadf32;
 	else if (strcmp("emulator", module) == 0 && strcmp("mupen", className) == 0 && strcmp("rdramReadBuffer(_,_)", signature) == 0)
 		return rdramReadBuffer;
 	else if (strcmp("emulator", module) == 0 && strcmp("mupen", className) == 0 && strcmp("rdramWrite8(_,_)", signature) == 0)
@@ -190,6 +236,10 @@ WrenForeignMethodFn wBindForeignMethod(WrenVM* vm, const char* module, const cha
 		return rdramWrite16;
 	else if (strcmp("emulator", module) == 0 && strcmp("mupen", className) == 0 && strcmp("rdramWrite32(_,_)", signature) == 0)
 		return rdramWrite32;
+	else if (strcmp("emulator", module) == 0 && strcmp("mupen", className) == 0 && strcmp("rdramWritef32(_,_)", signature) == 0)
+		return rdramWritef32;
+	else if (strcmp("emulator", module) == 0 && strcmp("mupen", className) == 0 && strcmp("rdramWriteBuffer(_,_)", signature) == 0)
+		return rdramWriteBuffer;
 	else if (strcmp("emulator", module) == 0 && strcmp("mupen", className) == 0 && strcmp("romRead8(_)", signature) == 0)
 		return romRead8;
 	else if (strcmp("emulator", module) == 0 && strcmp("mupen", className) == 0 && strcmp("romRead16(_)", signature) == 0)
@@ -204,6 +254,12 @@ WrenForeignMethodFn wBindForeignMethod(WrenVM* vm, const char* module, const cha
 		return romWrite16;
 	else if (strcmp("emulator", module) == 0 && strcmp("mupen", className) == 0 && strcmp("romWrite32(_,_)", signature) == 0)
 		return romWrite32;
+	else if (strcmp("emulator", module) == 0 && strcmp("mupen", className) == 0 && strcmp("getMouseX()", signature) == 0)
+		return getMouseX;
+	else if (strcmp("emulator", module) == 0 && strcmp("mupen", className) == 0 && strcmp("getMouseY()", signature) == 0)
+		return getMouseY;
+	else if (strcmp("emulator", module) == 0 && strcmp("mupen", className) == 0 && strcmp("osdMessage(_)", signature) == 0)
+		return osdMessage;
 
 	return 0;
 }
@@ -223,7 +279,7 @@ inline const char* getExt(const char *filename) {
 
 void initWrenConfig(WrenConfiguration* config) 
 {
-	config->loadModuleFn = wLoadModule;
+	config->loadModuleFn = wImportModule;
 	config->writeFn = wPrint;
 	config->errorFn = wError;
 	config->bindForeignClassFn = wBindForeignClass;
@@ -258,7 +314,6 @@ void loadGameScripts(WrenVM* vm) {
 		const char* fileExt = getExt(dp->d_name);
 
 		if (strcmp(fileExt, "wren") == 0) {
-			printf("Extension is .wren!\n");
 			char* thisScript = malloc(MAX_FILE_SIZE);
 			const char* thisScriptDir = malloc(MAX_PATH);
 			memset(thisScript, 0, MAX_FILE_SIZE);
@@ -272,6 +327,7 @@ void loadGameScripts(WrenVM* vm) {
 
 			loadModule(thisScriptDir, thisScript);
 			wrenInterpret(vm, "emulator", thisScript);
+			scriptsLoaded++;
 
 			free(thisScript);
 			free(thisScriptDir);
