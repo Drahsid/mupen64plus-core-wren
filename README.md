@@ -9,6 +9,8 @@ The directory for scripts is in the directory ./scripts. This is relative to the
 
 In the ./scripts directory of this repository are sample scripts that I wrote.
 
+## Scripting
+Check out the [Scripting Reference](https://github.com/Drahsid/mupen64plus-core-wren/wiki/Scripting-Reference).
 
 # Mupen64Plus-Core README
 
