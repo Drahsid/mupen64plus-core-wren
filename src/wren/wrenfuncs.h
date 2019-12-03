@@ -10,6 +10,13 @@ uint32_t scriptsLoaded = 0;
 
 static uint32_t ram_addr_align(uint32_t address) { return (address & 0xffffff) >> 2; }
 
+inline const char* getModuleFromId(uint32_t id) {
+	const char* moduleName = malloc(MAX_PATH);
+	memset(moduleName, 0, MAX_PATH);
+	snprintf(moduleName, MAX_PATH, "%u_%u", resetCount, id);
+	return moduleName;
+}
+
 void rdramRead8(WrenVM* vm) {
 	uint8_t result = read_rdram_8(wrenGetSlotDouble(vm, 1));
 	wrenSetSlotDouble(vm, 0, result);
@@ -255,51 +262,51 @@ char* wImportModule(WrenVM* vm, const char* name)
 
 WrenForeignMethodFn wBindForeignMethod(WrenVM* vm, const char* module, const char* className, bool isStatic, const char* signature)
 {
-	if (strcmp("emulator", module) == 0 && strcmp("mupen", className) == 0 && strcmp("rdramRead8(_)", signature) == 0)
+	if (strcmp("mupen", className) == 0 && strcmp("rdramRead8(_)", signature) == 0)
 		return rdramRead8;
-	else if (strcmp("emulator", module) == 0 && strcmp("mupen", className) == 0 && strcmp("rdramRead16(_)", signature) == 0)
+	else if (strcmp("mupen", className) == 0 && strcmp("rdramRead16(_)", signature) == 0)
 		return rdramRead16;
-	else if (strcmp("emulator", module) == 0 && strcmp("mupen", className) == 0 && strcmp("rdramRead32(_)", signature) == 0)
+	else if (strcmp("mupen", className) == 0 && strcmp("rdramRead32(_)", signature) == 0)
 		return rdramRead32;
-	else if (strcmp("emulator", module) == 0 && strcmp("mupen", className) == 0 && strcmp("rdramReadf32(_)", signature) == 0)
+	else if (strcmp("mupen", className) == 0 && strcmp("rdramReadf32(_)", signature) == 0)
 		return rdramReadf32;
-	else if (strcmp("emulator", module) == 0 && strcmp("mupen", className) == 0 && strcmp("rdramReadBuffer(_,_)", signature) == 0)
+	else if (strcmp("mupen", className) == 0 && strcmp("rdramReadBuffer(_,_)", signature) == 0)
 		return rdramReadBuffer;
-	else if (strcmp("emulator", module) == 0 && strcmp("mupen", className) == 0 && strcmp("rdramWrite8(_,_)", signature) == 0)
+	else if (strcmp("mupen", className) == 0 && strcmp("rdramWrite8(_,_)", signature) == 0)
 		return rdramWrite8;
-	else if (strcmp("emulator", module) == 0 && strcmp("mupen", className) == 0 && strcmp("rdramWrite16(_,_)", signature) == 0)
+	else if (strcmp("mupen", className) == 0 && strcmp("rdramWrite16(_,_)", signature) == 0)
 		return rdramWrite16;
-	else if (strcmp("emulator", module) == 0 && strcmp("mupen", className) == 0 && strcmp("rdramWrite32(_,_)", signature) == 0)
+	else if (strcmp("mupen", className) == 0 && strcmp("rdramWrite32(_,_)", signature) == 0)
 		return rdramWrite32;
-	else if (strcmp("emulator", module) == 0 && strcmp("mupen", className) == 0 && strcmp("rdramWritef32(_,_)", signature) == 0)
+	else if (strcmp("mupen", className) == 0 && strcmp("rdramWritef32(_,_)", signature) == 0)
 		return rdramWritef32;
-	else if (strcmp("emulator", module) == 0 && strcmp("mupen", className) == 0 && strcmp("rdramWriteBuffer(_,_)", signature) == 0)
+	else if (strcmp("mupen", className) == 0 && strcmp("rdramWriteBuffer(_,_)", signature) == 0)
 		return rdramWriteBuffer;
-	else if (strcmp("emulator", module) == 0 && strcmp("mupen", className) == 0 && strcmp("romRead8(_)", signature) == 0)
+	else if (strcmp("mupen", className) == 0 && strcmp("romRead8(_)", signature) == 0)
 		return romRead8;
-	else if (strcmp("emulator", module) == 0 && strcmp("mupen", className) == 0 && strcmp("romRead16(_)", signature) == 0)
+	else if (strcmp("mupen", className) == 0 && strcmp("romRead16(_)", signature) == 0)
 		return romRead16;
-	else if (strcmp("emulator", module) == 0 && strcmp("mupen", className) == 0 && strcmp("romRead32(_)", signature) == 0)
+	else if (strcmp("mupen", className) == 0 && strcmp("romRead32(_)", signature) == 0)
 		return romRead32;
-	else if (strcmp("emulator", module) == 0 && strcmp("mupen", className) == 0 && strcmp("romReadf32(_)", signature) == 0)
+	else if (strcmp("mupen", className) == 0 && strcmp("romReadf32(_)", signature) == 0)
 		return romReadf32;
-	else if (strcmp("emulator", module) == 0 && strcmp("mupen", className) == 0 && strcmp("romReadBuffer(_,_)", signature) == 0)
+	else if (strcmp("mupen", className) == 0 && strcmp("romReadBuffer(_,_)", signature) == 0)
 		return romReadBuffer;
-	else if (strcmp("emulator", module) == 0 && strcmp("mupen", className) == 0 && strcmp("romWrite8(_,_)", signature) == 0)
+	else if (strcmp("mupen", className) == 0 && strcmp("romWrite8(_,_)", signature) == 0)
 		return romWrite8;
-	else if (strcmp("emulator", module) == 0 && strcmp("mupen", className) == 0 && strcmp("romWrite16(_,_)", signature) == 0)
+	else if (strcmp("mupen", className) == 0 && strcmp("romWrite16(_,_)", signature) == 0)
 		return romWrite16;
-	else if (strcmp("emulator", module) == 0 && strcmp("mupen", className) == 0 && strcmp("romWrite32(_,_)", signature) == 0)
+	else if (strcmp("mupen", className) == 0 && strcmp("romWrite32(_,_)", signature) == 0)
 		return romWrite32;
-	else if (strcmp("emulator", module) == 0 && strcmp("mupen", className) == 0 && strcmp("romfWrite32(_,_)", signature) == 0)
+	else if (strcmp("mupen", className) == 0 && strcmp("romWritef32(_,_)", signature) == 0)
 		return romWritef32;
-	else if (strcmp("emulator", module) == 0 && strcmp("mupen", className) == 0 && strcmp("romWriteBuffer(_,_)", signature) == 0)
+	else if (strcmp("mupen", className) == 0 && strcmp("romWriteBuffer(_,_)", signature) == 0)
 		return romWriteBuffer;
-	else if (strcmp("emulator", module) == 0 && strcmp("mupen", className) == 0 && strcmp("getMouseX()", signature) == 0)
+	else if (strcmp("mupen", className) == 0 && strcmp("getMouseX()", signature) == 0)
 		return getMouseX;
-	else if (strcmp("emulator", module) == 0 && strcmp("mupen", className) == 0 && strcmp("getMouseY()", signature) == 0)
+	else if (strcmp("mupen", className) == 0 && strcmp("getMouseY()", signature) == 0)
 		return getMouseY;
-	else if (strcmp("emulator", module) == 0 && strcmp("mupen", className) == 0 && strcmp("osdMessage(_,_)", signature) == 0)
+	else if (strcmp("mupen", className) == 0 && strcmp("osdMessage(_,_)", signature) == 0)
 		return osdMessage;
 
 	return 0;
@@ -357,6 +364,7 @@ void loadGameScripts(WrenVM* vm) {
 		if (strcmp(fileExt, "wren") == 0) {
 			char* thisScript = malloc(MAX_FILE_SIZE);
 			const char* thisScriptDir = malloc(MAX_PATH);
+			
 			memset(thisScript, 0, MAX_FILE_SIZE);
 			memset(thisScriptDir, 0, MAX_PATH);
 			
@@ -364,14 +372,17 @@ void loadGameScripts(WrenVM* vm) {
 			strcat(thisScriptDir, "/");
 			strcat(thisScriptDir, dp->d_name);
 
-			printf("Loading script at dir: %s\n", thisScriptDir);
+			const char* moduleName = getModuleFromId(scriptsLoaded);
+			
+			printf("Loading script at dir: %s into module %s\n", thisScriptDir, moduleName);
 
 			loadModule(thisScriptDir, thisScript);
-			wrenInterpret(vm, "emulator", thisScript);
-			scriptsLoaded++;
+			wrenInterpret(vm, moduleName, thisScript);
 
 			free(thisScript);
 			free(thisScriptDir);
+			free(moduleName);
+			scriptsLoaded++;
 		}
 	}
 

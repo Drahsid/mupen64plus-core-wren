@@ -132,16 +132,56 @@ static void* l_paks[GAME_CONTROLLERS_COUNT][PAK_MAX_SIZE];
 static const struct pak_interface* l_ipaks[PAK_MAX_SIZE];
 static size_t l_pak_type_idx[6];
 
+int lastLockFrame = 0;
+uint8_t locked = 0;
 int mouseX = 0;
 int mouseY = 0;
 
+uint8_t isResetting = 0;
+uint32_t resetCount = 0;
+
 #include "wren/wrenfuncs.h"
 
-WrenVM* wvm;
+WrenVM* wvm = 0;
 WrenConfiguration wconfig;
-WrenHandle* wrenMupenClass;
-WrenHandle* initHandle;
-WrenHandle* onTickHandle;
+WrenHandle* wrenMupenClass = 0;
+WrenHandle* initHandle = 0;
+WrenHandle* onTickHandle = 0;
+uint8_t initConfig = 1;
+
+inline void updateHandlesForWrenModule(const char* moduleName) {
+	wrenEnsureSlots(wvm, 8);
+	wrenGetVariable(wvm, moduleName, "mupen", 0);
+	wrenMupenClass = wrenGetSlotHandle(wvm, 0);
+	initHandle = wrenMakeCallHandle(wvm, "init()");
+	onTickHandle = wrenMakeCallHandle(wvm, "onTick(_)");
+	wrenSetSlotHandle(wvm, 0, wrenMupenClass);
+}
+
+inline void initWren() {
+	if (initConfig) {
+		wrenInitConfiguration(&wconfig);
+		initWrenConfig(&wconfig);
+		initConfig = 0;
+	}
+	
+	wvm = wrenNewVM(&wconfig);
+	loadGameScripts(wvm);
+	printf("Scripts loaded\n");
+
+	if (scriptsLoaded > 0) {
+		const char* moduleName = malloc(MAX_PATH);
+		
+		for (uint32_t i = 0; i < scriptsLoaded; i++) {
+			memset(moduleName, 0, MAX_PATH);
+			snprintf(moduleName, MAX_PATH, "%u_%u", resetCount, i);
+			updateHandlesForWrenModule(moduleName);
+			wrenCall(wvm, initHandle);
+			free(moduleName);
+		}
+	}
+	printf("Exit\n");
+}
 
 /*********************************************************************************************************
 * static functions
@@ -733,6 +773,8 @@ int main_volume_get_muted(void)
 
 m64p_error main_reset(int do_hard_reset)
 {
+	isResetting = 1;
+	resetCount++;
     if (do_hard_reset) {
         hard_reset_device(&g_dev);
     }
@@ -740,6 +782,15 @@ m64p_error main_reset(int do_hard_reset)
         soft_reset_device(&g_dev);
     }
 
+	wrenReleaseHandle(wvm, wrenMupenClass);
+	wrenReleaseHandle(wvm, initHandle);
+	wrenReleaseHandle(wvm, onTickHandle);
+	wrenFreeVM(wvm);
+
+	initWren();
+
+	l_CurrentFrame = 0;
+	isResetting = 0;
     return M64ERR_SUCCESS;
 }
 
@@ -778,21 +829,36 @@ static void video_plugin_render_callback(int bScreenRedrawn)
 
 void new_frame(void)
 {
-	SDL_WM_GrabInput(SDL_GRAB_ON);
-	SDL_GetRelativeMouseState(&mouseX, &mouseY);
-
     if (g_FrameCallback != NULL)
         (*g_FrameCallback)(l_CurrentFrame);
 
     /* advance the current frame */
     l_CurrentFrame++;
 
-	if (scriptsLoaded > 0) {
-		wrenSetSlotHandle(wvm, 0, wrenMupenClass);
-		wrenSetSlotDouble(wvm, 1, l_CurrentFrame);
-		wrenCall(wvm, onTickHandle);
+	uint8_t* keyboard = SDL_GetKeyState(NULL);
+	if (keyboard[SDLK_HOME] && l_CurrentFrame - lastLockFrame > 4) {
+		locked = !locked;
+		lastLockFrame = l_CurrentFrame;
 	}
 
+	if (locked) {
+		SDL_WM_GrabInput(SDL_GRAB_ON);
+		SDL_GetRelativeMouseState(&mouseX, &mouseY);
+	}
+	else SDL_WM_GrabInput(SDL_GRAB_OFF);
+
+	if (scriptsLoaded > 0 && !isResetting) {
+		if (l_CurrentFrame % 240 == 0) wrenCollectGarbage(wvm);
+		const char* moduleName;
+
+		for (uint32_t i = 0; i < scriptsLoaded; i++) {
+			moduleName = getModuleFromId(i);
+			updateHandlesForWrenModule(moduleName);
+			wrenSetSlotDouble(wvm, 1, l_CurrentFrame);
+			wrenCall(wvm, onTickHandle);
+			free(moduleName);
+		}
+	}
 
     if (l_FrameAdvance) {
         g_rom_pause = 1;
@@ -1291,20 +1357,7 @@ void main_change_gb_cart(int control_id)
 
 m64p_error main_run(void)
 {
-	wrenInitConfiguration(&wconfig);
-	initWrenConfig(&wconfig);
-	wvm = wrenNewVM(&wconfig);
-	loadGameScripts(wvm);
-	if (scriptsLoaded > 0) {
-		wrenEnsureSlots(wvm, 2);
-		wrenGetVariable(wvm, "emulator", "mupen", 0);
-		wrenMupenClass = wrenGetSlotHandle(wvm, 0);
-		initHandle = wrenMakeCallHandle(wvm, "init()");
-		onTickHandle = wrenMakeCallHandle(wvm, "onTick(_)");
-
-		wrenSetSlotHandle(wvm, 0, wrenMupenClass);
-		wrenCall(wvm, initHandle);
-	}
+	initWren();
 
     size_t i, k;
     size_t rdram_size;
@@ -1709,6 +1762,8 @@ void main_stop(void)
     if (!g_EmulatorRunning)
         return;
 
+	wrenFreeVM(wvm);
+
     DebugMessage(M64MSG_STATUS, "Stopping emulation.");
     if(l_msgPause)
     {
@@ -1730,8 +1785,6 @@ void main_stop(void)
         g_rom_pause = 0;
         StateChanged(M64CORE_EMU_STATE, M64EMU_RUNNING);
     }
-
-	wrenFreeVM(wvm);
 
     stop_device(&g_dev);
 
